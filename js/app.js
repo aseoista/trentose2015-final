@@ -42,7 +42,8 @@ var SantaModel = {
     */
    pack : function(item) {
        
-       if (this.getCurrentRequest ().answer == (item)) {
+       
+       if (this.getCurrentRequest ().answer == item) {
            
            return 1;
        } else {
@@ -63,6 +64,29 @@ var SantaOctopus = {
         SantaView.init ();
         
         this.points = 0;
+        
+        SantaView.showQuestion (SantaModel.getCurrentRequest ());
+    },
+    
+    registerAnswer : function (answer) {
+        
+        var nextQuestion;
+        
+        this.points += SantaModel.pack (answer);
+        
+        console.log (this.points);
+        SantaModel.next ();
+        nextQuestion = SantaModel.getCurrentRequest ();
+        
+        if (nextQuestion != null) {
+            
+            SantaView.showQuestion (SantaModel.getCurrentRequest ());
+            
+        } else {
+            
+            console.log (this.points);
+            SantaView.showResult (this.points);
+        }
     },
 };
 
@@ -76,6 +100,7 @@ var SantaView = {
         
         this.answersElement.on ('click', 'li', function (element) {
             
+            SantaOctopus.registerAnswer ($(this).text ());
         });
         
         this.resultElement.hide ();
@@ -83,10 +108,21 @@ var SantaView = {
     
     showQuestion : function (question) {
         
-        this.question.text = question.question;
+        this.questionElement.html (question.question);
+        this.answersElement.empty ();
         
+        for (var i=0; i<question.options.length; i++) {
+            
+            this.answersElement.append ('<li>' + question.options[i] + '</li>');
+        }
         
     },
+    
+    showResult : function (points) {
+        
+        this.resultElement.html (points);
+        this.resultElement.show ();
+    }
 };
 
 $(document).ready (function () {
